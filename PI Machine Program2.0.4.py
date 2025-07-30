@@ -346,13 +346,9 @@ def compileCsv():
         "WATTAGE Middle (W)": [tempPiData["WATTAGE Middle (W)"].values[0]],
         "AMPERAGE Middle (A)": [tempPiData["AMPERAGE Middle (A)"].values[0]],
         "CLOSED PRESSURE Middle (kPa)": [tempPiData["CLOSED PRESSURE Middle (kPa)"].values[0]],
-        "dB(A) 1": [tempPiData["dB(A) 1"].values[0]],
-        "dB(A) 2": [tempPiData["dB(A) 2"].values[0]],
-        "dB(A) 3": [tempPiData["dB(A) 3"].values[0]],
         "VOLTAGE MIN (V)": [tempPiData["VOLTAGE MIN (V)"].values[0]],
         "WATTAGE MIN (W)": [tempPiData["WATTAGE MIN (W)"].values[0]],
-        "CLOSED PRESSURE MIN (kPa)": [tempPiData["CLOSED PRESSURE MIN (kPa)"].values[0]],
-        "CHECKING": "-"
+        "CLOSED PRESSURE MIN (kPa)": [tempPiData["CLOSED PRESSURE MIN (kPa)"].values[0]]
     }
     csvData = pd.DataFrame(csvData)
 
