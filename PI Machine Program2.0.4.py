@@ -22,7 +22,8 @@ isPiDataReaded = False
 isProcess5DataReaded = False
 
 #Date
-dateToday = "2024/09/20"
+dateToday = "2024/11/04"
+dateTodayDashFormat = "2024-11-04"
 calendarPicker = ""
 
 #Output
@@ -70,6 +71,7 @@ def ReadPIMachine():
     global isDebugMode
 
     global dateToday
+    global dateTodayDashFormat
 
     global allPIData
     global piData
@@ -79,13 +81,27 @@ def ReadPIMachine():
     # pd.set_option('display.max_columns', None)
     # pd.set_option('display.max_rows', None)
 
-    piDirectory = (r'\\192.168.2.19\ai_team\AI Program\Outputs\CompiledPiMachine')
-    os.chdir(piDirectory)
+    # piDirectory = (r'\\192.168.2.19\ai_team\AI Program\Outputs\CompiledPiMachine')
+    # os.chdir(piDirectory)
     
-    #Appending Latest Data Into List
-    allPIData = pd.read_csv('CompiledPIMachine.csv', encoding='latin1')
+    # #Appending Latest Data Into List
+    # allPIData = pd.read_csv('CompiledPIMachine.csv', encoding='latin1')
     
-    piData = allPIData[(allPIData["DATE"].isin([dateToday]))]
+    # piData = allPIData[(allPIData["DATE"].isin([dateToday]))]
+
+    Sql.SqlConnection()
+
+    allPIData = Sql.SelectAllDataFromTable("inspection_machine_data")
+    piData = allPIData[(allPIData["DATE"].astype(str).isin([dateTodayDashFormat]))]
+
+    # print(piData["TIME"].values[0].replace("0 days ", ""))
+
+    # tempPiData = piData.iloc[[piRow], :]
+
+    # return str(tempPiData["TIME"].values[0])
+    # return str(tempPiData.iloc[0, 2])
+
+# ReadPIMachine()
 
 # %%
 # ReadPIMachine()
@@ -145,16 +161,16 @@ def ReadProcess5():
     else:
         process5Directory = (r'\\192.168.2.19\ai_team\AI Program\Outputs\FC1 CSV\VT5')
 
-    os.chdir(process5Directory)
+    # os.chdir(process5Directory)
 
-    process5Data = pd.read_csv(f'log000_5.csv', encoding='latin1')
-    process5Data = process5Data[(process5Data["DATE"].isin([dateToday]))]
-
-    # Sql.SqlConnection()
-
-    # process5Data = Sql.SelectAllDataFromTable("process5_data")
+    # process5Data = pd.read_csv(f'log000_5.csv', encoding='latin1')
     # process5Data = process5Data[(process5Data["DATE"].isin([dateToday]))]
-    
+
+    Sql.SqlConnection()
+
+    process5Data = Sql.SelectAllDataFromTable("process5_data")
+    process5Data = process5Data[(process5Data["Process_5_DATE"].isin([dateToday]))]
+
 
 # %%
 def checkIfCanProceed():
@@ -207,8 +223,8 @@ def checkIfCanProceed():
         print("Pi Data Blank")
     try:
         tempProcess5Data = process5Data.iloc[[process5Row], :]
-        tempProcess5Data["Process 5 NG Cause"]
-        if tempProcess5Data["Process 5 NG Cause"].values[0].replace(' ', '') == "NGPRESSURE":
+        tempProcess5Data["Process_5_NG_Cause"]
+        if tempProcess5Data["Process_5_NG_Cause"].values[0].replace(' ', '') == "NGPRESSURE":
             isNGPressure = True
             isCanProceed = True
             print("NG Pressure")
@@ -216,27 +232,27 @@ def checkIfCanProceed():
         pass
 
     if not isPiDataBlank and not isNGPressure:
-        if "M" in tempPiData["MODEL CODE"].values[0]:
+        if "M" in tempPiData["MODEL_CODE"].values[0]:
             isMasterPump = True
             isCanProceed = True
             print("Master Pump")
 
-        elif "60FCXP001P" in tempPiData["MODEL CODE"].values[0]:
+        elif "60FCXP001P" in tempPiData["MODEL_CODE"].values[0]:
             is60FCXP001P = True
             isCanProceed = True
             print("60FCXP001P")
 
         #Checking If Trial/TrialRunning
-        elif len(str(tempPiData["S/N"].values[0])) < 9:
+        elif len(str(tempPiData["S_N"].values[0])) < 9:
             print("Checking If Trial/TrialRunning")
 
-            piDataFilteredGood = allPIData[(allPIData["PASS/NG"].isin([1])) & (allPIData["MODEL CODE"].isin([tempPiData["MODEL CODE"].values[0]]))]
-            serialNumberList = piDataFilteredGood["S/N"].values
+            piDataFilteredGood = allPIData[(allPIData["PASS_NG"].isin([1])) & (allPIData["MODEL_CODE"].isin([tempPiData["MODEL_CODE"].values[0]]))]
+            serialNumberList = piDataFilteredGood["S_N"].values
 
             sameSerialList = []
             for a in serialNumberList:
             #Checking S/N If Same Value Exists = Running
-                if tempPiData["S/N"].values == a:
+                if tempPiData["S_N"].values == a:
                     sameSerialList.append(a)
                 if len(sameSerialList) > 5:
                     print("Trial Running")
@@ -250,16 +266,16 @@ def checkIfCanProceed():
                 isCanProceed = True
 
         #Checking If NG/Running
-        elif tempPiData["PASS/NG"].values == 0:
+        elif tempPiData["PASS_NG"].values == "0":
             print("Checking If NG/Running")
 
-            piDataFilteredGood = allPIData[(allPIData["PASS/NG"].isin([1])) & (allPIData["MODEL CODE"].isin([tempPiData["MODEL CODE"].values[0]]))]
-            serialNumberList = piDataFilteredGood["S/N"].values
+            piDataFilteredGood = allPIData[(allPIData["PASS_NG"].isin([1])) & (allPIData["MODEL_CODE"].isin([tempPiData["MODEL_CODE"].values[0]]))]
+            serialNumberList = piDataFilteredGood["S_N"].values
 
             sameSerialList = []
             for a in serialNumberList:
             #Checking S/N If Same Value Exists = Running
-                if tempPiData["S/N"].values == a:
+                if tempPiData["S_N"].values == a:
                     sameSerialList.append(a)
                 if len(sameSerialList) > 2:
                     print("Running")
@@ -280,19 +296,19 @@ def checkIfCanProceed():
                     print("Process 5 Data Blank")
 
         #Checking If Good/Running
-        elif tempPiData["PASS/NG"].values == 1:
+        elif tempPiData["PASS_NG"].values == "1":
             print("Checking If Good/Running")
 
-            piDataFilteredGood = allPIData[(allPIData["PASS/NG"].isin([1])) & (allPIData["MODEL CODE"].isin([tempPiData["MODEL CODE"].values[0]]))]
+            piDataFilteredGood = allPIData[(allPIData["PASS_NG"].isin([1])) & (allPIData["MODEL_CODE"].isin([tempPiData["MODEL_CODE"].values[0]]))]
             #Not Including the tempPiData
             # piDataFilteredGood = piDataFilteredGood[(piDataFilteredGood["TIME"].isin([tempPiData["TIME"].values[0]]))]
-            serialNumberList = piDataFilteredGood["S/N"].values
+            serialNumberList = piDataFilteredGood["S_N"].values
 
 
             sameSerialList = []
             for a in serialNumberList:
             #Checking S/N If Same Value Exists = Running
-                if tempPiData["S/N"].values == a:
+                if tempPiData["S_N"].values == a:
                     sameSerialList.append(a)
                 if len(sameSerialList) > 2:
                     print("Running")
@@ -340,21 +356,21 @@ def compileCsv():
   
     csvData = {
         "DATE": [tempPiData["DATE"].values[0]],
-        "TIME": [tempPiData["TIME"].values[0]],
-        "MODEL CODE": [tempPiData["MODEL CODE"].values[0]],
+        "TIME": [str(tempPiData.iloc[0, 2]).replace("0 days ", "")],
+        "MODEL CODE": [tempPiData["MODEL_CODE"].values[0]],
         "PROCESS S/N": "",
-        "S/N": [tempPiData["S/N"].values[0]],
-        "PASS/NG": [tempPiData["PASS/NG"].values[0]],
-        "VOLTAGE MAX (V)": [tempPiData["VOLTAGE MAX (V)"].values[0]],
-        "WATTAGE MAX (W)": [tempPiData["WATTAGE MAX (W)"].values[0]],
-        "CLOSED PRESSURE_MAX (kPa)": [tempPiData["CLOSED PRESSURE_MAX (kPa)"].values[0]],
-        "VOLTAGE Middle (V)": [tempPiData["VOLTAGE Middle (V)"].values[0]],
-        "WATTAGE Middle (W)": [tempPiData["WATTAGE Middle (W)"].values[0]],
-        "AMPERAGE Middle (A)": [tempPiData["AMPERAGE Middle (A)"].values[0]],
-        "CLOSED PRESSURE Middle (kPa)": [tempPiData["CLOSED PRESSURE Middle (kPa)"].values[0]],
-        "VOLTAGE MIN (V)": [tempPiData["VOLTAGE MIN (V)"].values[0]],
-        "WATTAGE MIN (W)": [tempPiData["WATTAGE MIN (W)"].values[0]],
-        "CLOSED PRESSURE MIN (kPa)": [tempPiData["CLOSED PRESSURE MIN (kPa)"].values[0]]
+        "S/N": [tempPiData["S_N"].values[0]],
+        "PASS/NG": [tempPiData["PASS_NG"].values[0]],
+        "VOLTAGE MAX (V)": [tempPiData["VOLTAGE_MAX_V"].values[0]],
+        "WATTAGE MAX (W)": [tempPiData["WATTAGE_MAX_W"].values[0]],
+        "CLOSED PRESSURE_MAX (kPa)": [tempPiData["CLOSED_PRESSURE_MAX_kPa"].values[0]],
+        "VOLTAGE Middle (V)": [tempPiData["VOLTAGE_Middle_V"].values[0]],
+        "WATTAGE Middle (W)": [tempPiData["WATTAGE_Middle_W"].values[0]],
+        "AMPERAGE Middle (A)": [tempPiData["AMPERAGE_Middle_A"].values[0]],
+        "CLOSED PRESSURE Middle (kPa)": [tempPiData["CLOSED_PRESSURE_Middle_kPa"].values[0]],
+        "VOLTAGE MIN (V)": [tempPiData["VOLTAGE_MIN_V"].values[0]],
+        "WATTAGE MIN (W)": [tempPiData["WATTAGE_MIN_W"].values[0]],
+        "CLOSED PRESSURE MIN (kPa)": [tempPiData["CLOSED_PRESSURE_MIN_kPa"].values[0]]
     }
     csvData = pd.DataFrame(csvData)
 
@@ -387,13 +403,13 @@ def compileCsv():
         compiledData = pd.concat([compiledData, csvData], ignore_index=True)
     elif isNG:
         print("NG")
-        csvData["PROCESS S/N"] = tempProcess5Data["Process 5 S/N"].values[0]
+        csvData["PROCESS S/N"] = tempProcess5Data["Process_5_S_N"].values[0]
         piRow += 1
         process5Row += 1
         compiledData = pd.concat([compiledData, csvData], ignore_index=True)
     elif isGood:
         print("Good")
-        csvData["PROCESS S/N"] = tempProcess5Data["Process 5 S/N"].values[0]
+        csvData["PROCESS S/N"] = tempProcess5Data["Process_5_S_N"].values[0]
         piRow += 1
         process5Row += 1
         compiledData = pd.concat([compiledData, csvData], ignore_index=True)
@@ -402,7 +418,7 @@ def compileCsv():
         csvData["DATE"] = "NG PRESSURE" 
         csvData["TIME"] = "NG PRESSURE" 
         csvData["MODEL CODE"] = "NG PRESSURE" 
-        csvData["PROCESS S/N"] = tempProcess5Data["Process 5 S/N"].values[0]
+        csvData["PROCESS S/N"] = tempProcess5Data["Process_5_S_N"].values[0]
         csvData["S/N"] = "NG PRESSURE" 
         csvData["PASS/NG"] = "NG PRESSURE" 
         csvData["VOLTAGE MAX (V)"] = "NG PRESSURE" 
@@ -594,12 +610,15 @@ def StopProgram():
 # %%
 def updateDate():
     global dateToday
+    global dateTodayDashFormat
     global calendarPicker
 
     selectedDate = calendarPicker.get_date()
-    selectedDate = selectedDate.strftime("%Y/%m/%d")
+    selectedDateSlashFormat = selectedDate.strftime("%Y/%m/%d")
+    selectedDateDashFormat = selectedDate.strftime("%Y-%m-%d")
 
-    dateToday = selectedDate
+    dateToday = selectedDateSlashFormat
+    dateTodayDashFormat = selectedDateDashFormat
 
 # %%
 def updateDatePrompt():
