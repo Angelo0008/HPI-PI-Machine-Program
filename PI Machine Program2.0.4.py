@@ -1,6 +1,7 @@
 # %%
 from Imports import *
 import DateAndTimeManager
+import Sql
 
 isProgramRunning = True
 isCompiling = True
@@ -148,6 +149,11 @@ def ReadProcess5():
 
     process5Data = pd.read_csv(f'log000_5.csv', encoding='latin1')
     process5Data = process5Data[(process5Data["DATE"].isin([dateToday]))]
+
+    # Sql.SqlConnection()
+
+    # process5Data = Sql.SelectAllDataFromTable("process5_data")
+    # process5Data = process5Data[(process5Data["DATE"].isin([dateToday]))]
     
 
 # %%
@@ -480,10 +486,16 @@ def startCompiler():
     ]
     compiledData = pd.DataFrame(columns=col)
 
+    ReadPIMachine()
+    while True:
+        try:
+            ReadProcess5()
+            break
+        except:
+            pass
+
     while isCompiling:
         # DateAndTimeManager.GetDateToday()
-
-        ReadPIMachine()
 
         # while not isPiDataReaded:
         #     try:
@@ -492,14 +504,6 @@ def startCompiler():
         #     except:
         #         pass
         # isPiDataReaded = False
-
-        while not isProcess5DataReaded:
-            try:
-                ReadProcess5()
-                isProcess5DataReaded = True
-            except:
-                pass
-        isProcess5DataReaded = False
 
         checkIfCanProceed()
         if isCanProceed:
