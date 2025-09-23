@@ -45,6 +45,7 @@ isRunning = False
 isNG = False
 isGood = False
 isNGPressure = False
+isNGFlow = False
 
 readCount = 0
 
@@ -195,6 +196,7 @@ def checkIfCanProceed():
     global isNG
     global isGood
     global isNGPressure
+    global isNGFlow
 
     #Private Variables
     isPiDataBlank = True
@@ -211,6 +213,7 @@ def checkIfCanProceed():
     isNG = False
     isGood = False
     isNGPressure = False
+    isNGFlow = False
 
     try:
         tempPiData = piData.iloc[[piRow], :]
@@ -230,8 +233,17 @@ def checkIfCanProceed():
             print("NG Pressure")
     except:
         pass
+    try:
+        tempProcess5Data = process5Data.iloc[[process5Row], :]
+        tempProcess5Data["Process_5_NG_Cause"]
+        if tempProcess5Data["Process_5_NG_Cause"].values[0].replace(' ', '') == "NGFLOW":
+            isNGFlow = True
+            isCanProceed = True
+            print("NG Flow")
+    except:
+        pass
 
-    if not isPiDataBlank and not isNGPressure:
+    if not isPiDataBlank and not isNGPressure and not isNGFlow:
         if "M" in tempPiData["MODEL_CODE"].values[0]:
             isMasterPump = True
             isCanProceed = True
@@ -353,6 +365,7 @@ def compileCsv():
     global isNG
     global isGood
     global isNGPressure
+    global isNGFlow
   
     csvData = {
         "DATE": [tempPiData["DATE"].values[0]],
@@ -435,6 +448,30 @@ def compileCsv():
         csvData["WATTAGE MIN (W)"] = "NG PRESSURE" 
         csvData["CLOSED PRESSURE MIN (kPa)"] = "NG PRESSURE" 
         csvData["CHECKING"] = "NG PRESSURE" 
+        process5Row += 1
+        compiledData = pd.concat([compiledData, csvData], ignore_index=True)
+    elif isNGFlow:
+        print("NG FLOW")
+        csvData["DATE"] = "NG FLOW" 
+        csvData["TIME"] = "NG FLOW" 
+        csvData["MODEL CODE"] = "NG FLOW" 
+        csvData["PROCESS S/N"] = tempProcess5Data["Process_5_S_N"].values[0]
+        csvData["S/N"] = "NG FLOW" 
+        csvData["PASS/NG"] = "NG FLOW" 
+        csvData["VOLTAGE MAX (V)"] = "NG FLOW" 
+        csvData["WATTAGE MAX (W)"] = "NG FLOW" 
+        csvData["CLOSED PRESSURE_MAX (kPa)"] = "NG FLOW" 
+        csvData["VOLTAGE Middle (V)"] = "NG FLOW" 
+        csvData["WATTAGE Middle (W)"] = "NG FLOW" 
+        csvData["AMPERAGE Middle (A)"] = "NG FLOW" 
+        csvData["CLOSED PRESSURE Middle (kPa)"] = "NG FLOW" 
+        csvData["dB(A) 1"] = "NG FLOW" 
+        csvData["dB(A) 2"] = "NG FLOW" 
+        csvData["dB(A) 3"] = "NG FLOW" 
+        csvData["VOLTAGE MIN (V)"] = "NG FLOW" 
+        csvData["WATTAGE MIN (W)"] = "NG FLOW" 
+        csvData["CLOSED PRESSURE MIN (kPa)"] = "NG FLOW" 
+        csvData["CHECKING"] = "NG FLOW" 
         process5Row += 1
         compiledData = pd.concat([compiledData, csvData], ignore_index=True)
 
