@@ -46,6 +46,10 @@ isNG = False
 isGood = False
 isNGPressure = False
 isNGFlow = False
+isWaterMark = False
+isCorrosion = False
+isBlackSpots = False
+isRust = False
 
 readCount = 0
 
@@ -197,6 +201,10 @@ def checkIfCanProceed():
     global isGood
     global isNGPressure
     global isNGFlow
+    global isWaterMark
+    global isCorrosion
+    global isBlackSpots
+    global isRust
 
     #Private Variables
     isPiDataBlank = True
@@ -214,6 +222,10 @@ def checkIfCanProceed():
     isGood = False
     isNGPressure = False
     isNGFlow = False
+    isWaterMark = False
+    isCorrosion = False
+    isBlackSpots = False
+    isRust = False
 
     try:
         tempPiData = piData.iloc[[piRow], :]
@@ -242,8 +254,48 @@ def checkIfCanProceed():
             print("NG Flow")
     except:
         pass
+    try:
+        tempProcess5Data = process5Data.iloc[[process5Row], :]
+        tempProcess5Data["Process_5_NG_Cause"]
+        # if tempProcess5Data["Process_5_NG_Cause"].values[0].replace(' ', '') == "WATERMARK":
+        if tempProcess5Data["Process_5_NG_Cause"].str.replace(" ", "").str.lower().str.contains("water").any():
+            isWaterMark = True
+            isCanProceed = True
+            print("WATER MARK")
+    except:
+        pass
+    try:
+        tempProcess5Data = process5Data.iloc[[process5Row], :]
+        tempProcess5Data["Process_5_NG_Cause"]
+        # if tempProcess5Data["Process_5_NG_Cause"].values[0].replace(' ', '') == "CORROSION":
+        if tempProcess5Data["Process_5_NG_Cause"].str.replace(" ", "").str.lower().str.contains("corrosion").any():
+            isCorrosion = True
+            isCanProceed = True
+            print("CORROSION")
+    except:
+        pass
+    try:
+        tempProcess5Data = process5Data.iloc[[process5Row], :]
+        tempProcess5Data["Process_5_NG_Cause"]
+        # if tempProcess5Data["Process_5_NG_Cause"].values[0].replace(' ', '') == "CORROSION":
+        if tempProcess5Data["Process_5_NG_Cause"].str.replace(" ", "").str.lower().str.contains("black").any():
+            isBlackSpots = True
+            isCanProceed = True
+            print("BLACK SPOTS")
+    except:
+        pass
+    try:
+        tempProcess5Data = process5Data.iloc[[process5Row], :]
+        tempProcess5Data["Process_5_NG_Cause"]
+        # if tempProcess5Data["Process_5_NG_Cause"].values[0].replace(' ', '') == "CORROSION":
+        if tempProcess5Data["Process_5_NG_Cause"].str.replace(" ", "").str.lower().str.contains("rust").any():
+            isRust = True
+            isCanProceed = True
+            print("RUST")
+    except:
+        pass
 
-    if not isPiDataBlank and not isNGPressure and not isNGFlow:
+    if not isPiDataBlank and not isNGPressure and not isNGFlow and not isWaterMark and not isCorrosion and not isBlackSpots and not isRust:
         if "M" in tempPiData["MODEL_CODE"].values[0]:
             isMasterPump = True
             isCanProceed = True
@@ -366,6 +418,10 @@ def compileCsv():
     global isGood
     global isNGPressure
     global isNGFlow
+    global isWaterMark
+    global isCorrosion
+    global isBlackSpots
+    global isRust
   
     csvData = {
         "DATE": [tempPiData["DATE"].values[0]],
@@ -472,6 +528,102 @@ def compileCsv():
         csvData["WATTAGE MIN (W)"] = "NG FLOW" 
         csvData["CLOSED PRESSURE MIN (kPa)"] = "NG FLOW" 
         csvData["CHECKING"] = "NG FLOW" 
+        process5Row += 1
+        compiledData = pd.concat([compiledData, csvData], ignore_index=True)
+    elif isWaterMark:
+        print("WATER MARK")
+        csvData["DATE"] = "WATER MARK" 
+        csvData["TIME"] = "WATER MARK" 
+        csvData["MODEL CODE"] = "WATER MARK" 
+        csvData["PROCESS S/N"] = tempProcess5Data["Process_5_S_N"].values[0]
+        csvData["S/N"] = "WATER MARK" 
+        csvData["PASS/NG"] = "WATER MARK" 
+        csvData["VOLTAGE MAX (V)"] = "WATER MARK" 
+        csvData["WATTAGE MAX (W)"] = "WATER MARK" 
+        csvData["CLOSED PRESSURE_MAX (kPa)"] = "WATER MARK" 
+        csvData["VOLTAGE Middle (V)"] = "WATER MARK" 
+        csvData["WATTAGE Middle (W)"] = "WATER MARK" 
+        csvData["AMPERAGE Middle (A)"] = "WATER MARK" 
+        csvData["CLOSED PRESSURE Middle (kPa)"] = "WATER MARK" 
+        csvData["dB(A) 1"] = "WATER MARK" 
+        csvData["dB(A) 2"] = "WATER MARK" 
+        csvData["dB(A) 3"] = "WATER MARK" 
+        csvData["VOLTAGE MIN (V)"] = "WATER MARK" 
+        csvData["WATTAGE MIN (W)"] = "WATER MARK" 
+        csvData["CLOSED PRESSURE MIN (kPa)"] = "WATER MARK" 
+        csvData["CHECKING"] = "WATER MARK" 
+        process5Row += 1
+        compiledData = pd.concat([compiledData, csvData], ignore_index=True)
+    elif isCorrosion:
+        print("CORROSION")
+        csvData["DATE"] = "CORROSION" 
+        csvData["TIME"] = "CORROSION" 
+        csvData["MODEL CODE"] = "CORROSION" 
+        csvData["PROCESS S/N"] = tempProcess5Data["Process_5_S_N"].values[0]
+        csvData["S/N"] = "CORROSION" 
+        csvData["PASS/NG"] = "CORROSION" 
+        csvData["VOLTAGE MAX (V)"] = "CORROSION" 
+        csvData["WATTAGE MAX (W)"] = "CORROSION" 
+        csvData["CLOSED PRESSURE_MAX (kPa)"] = "CORROSION" 
+        csvData["VOLTAGE Middle (V)"] = "CORROSION" 
+        csvData["WATTAGE Middle (W)"] = "CORROSION" 
+        csvData["AMPERAGE Middle (A)"] = "CORROSION" 
+        csvData["CLOSED PRESSURE Middle (kPa)"] = "CORROSION" 
+        csvData["dB(A) 1"] = "CORROSION" 
+        csvData["dB(A) 2"] = "CORROSION" 
+        csvData["dB(A) 3"] = "CORROSION" 
+        csvData["VOLTAGE MIN (V)"] = "CORROSION"
+        csvData["WATTAGE MIN (W)"] = "CORROSION"
+        csvData["CLOSED PRESSURE MIN (kPa)"] = "CORROSION" 
+        csvData["CHECKING"] = "CORROSION" 
+        process5Row += 1
+        compiledData = pd.concat([compiledData, csvData], ignore_index=True)
+    elif isBlackSpots:
+        print("BLACK SPOTS")
+        csvData["DATE"] = "BLACK SPOTS" 
+        csvData["TIME"] = "BLACK SPOTS" 
+        csvData["MODEL CODE"] = "BLACK SPOTS" 
+        csvData["PROCESS S/N"] = tempProcess5Data["Process_5_S_N"].values[0]
+        csvData["S/N"] = "BLACK SPOTS" 
+        csvData["PASS/NG"] = "BLACK SPOTS" 
+        csvData["VOLTAGE MAX (V)"] = "BLACK SPOTS" 
+        csvData["WATTAGE MAX (W)"] = "BLACK SPOTS" 
+        csvData["CLOSED PRESSURE_MAX (kPa)"] = "BLACK SPOTS" 
+        csvData["VOLTAGE Middle (V)"] = "BLACK SPOTS" 
+        csvData["WATTAGE Middle (W)"] = "BLACK SPOTS" 
+        csvData["AMPERAGE Middle (A)"] = "BLACK SPOTS" 
+        csvData["CLOSED PRESSURE Middle (kPa)"] = "BLACK SPOTS" 
+        csvData["dB(A) 1"] = "BLACK SPOTS" 
+        csvData["dB(A) 2"] = "BLACK SPOTS" 
+        csvData["dB(A) 3"] = "BLACK SPOTS" 
+        csvData["VOLTAGE MIN (V)"] = "BLACK SPOTS"
+        csvData["WATTAGE MIN (W)"] = "BLACK SPOTS"
+        csvData["CLOSED PRESSURE MIN (kPa)"] = "BLACK SPOTS" 
+        csvData["CHECKING"] = "BLACK SPOTS" 
+        process5Row += 1
+        compiledData = pd.concat([compiledData, csvData], ignore_index=True)
+    elif isRust:
+        print("RUST")
+        csvData["DATE"] = "RUST" 
+        csvData["TIME"] = "RUST" 
+        csvData["MODEL CODE"] = "RUST" 
+        csvData["PROCESS S/N"] = tempProcess5Data["Process_5_S_N"].values[0]
+        csvData["S/N"] = "RUST" 
+        csvData["PASS/NG"] = "RUST" 
+        csvData["VOLTAGE MAX (V)"] = "RUST" 
+        csvData["WATTAGE MAX (W)"] = "RUST" 
+        csvData["CLOSED PRESSURE_MAX (kPa)"] = "RUST" 
+        csvData["VOLTAGE Middle (V)"] = "RUST" 
+        csvData["WATTAGE Middle (W)"] = "RUST" 
+        csvData["AMPERAGE Middle (A)"] = "RUST" 
+        csvData["CLOSED PRESSURE Middle (kPa)"] = "RUST" 
+        csvData["dB(A) 1"] = "RUST" 
+        csvData["dB(A) 2"] = "RUST" 
+        csvData["dB(A) 3"] = "RUST" 
+        csvData["VOLTAGE MIN (V)"] = "RUST"
+        csvData["WATTAGE MIN (W)"] = "RUST"
+        csvData["CLOSED PRESSURE MIN (kPa)"] = "RUST" 
+        csvData["CHECKING"] = "RUST" 
         process5Row += 1
         compiledData = pd.concat([compiledData, csvData], ignore_index=True)
 
